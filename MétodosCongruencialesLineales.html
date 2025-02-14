@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Números Aleatorios</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>Generador de Números Aleatorios</h1>
+    
+    <label for="metodo">Método:</label>
+    <select id="metodo">
+        <option value="mixto">Algoritmo Congruencial Mixto</option>
+        <option value="multiplicativo">Algoritmo Congruencial Multiplicativo</option>
+        <option value="aditivo">Algoritmo Aditivo</option>
+    </select>
+    
+    <label for="semilla">Semilla:</label>
+    <input type="number" id="semilla" value="5497">
+    
+    <label for="constante">Constante (a):</label>
+    <input type="number" id="constante" value="6965">
+    
+    <button onclick="generarNumeros()">Iniciar</button>
+    <button onclick="detenerGeneracion()">Detener</button>
+    <button onclick="resetear()">Resetear</button>
+    
+    <br><br>
+    
+    <label for="buscar">Buscar Valor:</label>
+    <input type="text" id="buscar" onkeyup="buscarValor()">
+    
+    <br><br>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>N</th>
+                <th>Xn</th>
+                <th>Rn</th>
+            </tr>
+        </thead>
+        <tbody id="tabla-body"></tbody>
+    </table>
+    
+    <script>
+        let intervalo;
+        let datosOriginales = [];
+
+        function generarNumeros() {
+            let metodo = document.getElementById("metodo").value;
+            let semilla = parseInt(document.getElementById("semilla").value);
+            let constante = parseInt(document.getElementById("constante").value);
+            let tablaBody = document.getElementById("tabla-body");
+            tablaBody.innerHTML = "";
+            datosOriginales = [];
+            let Xn = semilla;
+            let N = 0;
+            let m = 10000;
+            let c = 1234;
+
+            intervalo = setInterval(() => {
+                let Xnp1, Rn;
+                
+                if (metodo === "mixto") {
+                    Xnp1 = (constante * Xn + c) % m;
+                } else if (metodo === "multiplicativo") {
+                    Xnp1 = (constante * Xn) % m;
+                } else if (metodo === "aditivo") {
+                    Xnp1 = (Xn + constante) % m;
+                }
+                
+                Rn = Xnp1 / m;
+                let fila = document.createElement("tr");
+                fila.innerHTML = `<td>${N}</td><td>${Xnp1}</td><td>${Rn.toFixed(4)}</td>`;
+                tablaBody.appendChild(fila);
+                datosOriginales.push(fila.cloneNode(true));
+                Xn = Xnp1;
+                N++;
+            }, 100);
+        }
+
+        function detenerGeneracion() {
+            clearInterval(intervalo);
+        }
+
+        function resetear() {
+            clearInterval(intervalo);
+            document.getElementById("tabla-body").innerHTML = "";
+            datosOriginales = [];
+        }
+
+        function buscarValor() {
+            let input = document.getElementById("buscar").value;
+            let tablaBody = document.getElementById("tabla-body");
+            tablaBody.innerHTML = "";
+
+            if (input === "") {
+                datosOriginales.forEach(fila => tablaBody.appendChild(fila.cloneNode(true)));
+            } else {
+                datosOriginales.forEach(fila => {
+                    if (fila.innerHTML.includes(input)) {
+                        tablaBody.appendChild(fila.cloneNode(true));
+                    }
+                });
+            }
+        }
+    </script>
+</body>
+</html>
